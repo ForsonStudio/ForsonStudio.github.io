@@ -8,6 +8,13 @@ var platforms = [];
 
 var leftWall;
 var rightWall;
+
+var startbutton;
+var leftbutton;
+var rightbutton;
+var buttondir;
+var isStartbutton;
+
 var ceiling;
 
 var text1;
@@ -28,6 +35,7 @@ function preload () {
     game.load.spritesheet('fake', './assets/fake.png', 96, 36);
     game.load.image('wall', './assets/wall.png');
     game.load.image('ceiling', './assets/ceiling.png');
+    game.load.image('brl', './assets/brl.png');
 }
 
 function create () {
@@ -52,7 +60,7 @@ function create () {
 function update () {
 
     // bad
-    if(status == 'gameOver' && keyboard.enter.isDown) restart();
+    if(status == 'gameOver' &&( keyboard.enter.isDown|| isStartbutton == 1) ) restart();
     if(status != 'running') return;
 
     this.physics.arcade.collide(player, platforms, effect);
@@ -77,7 +85,36 @@ function createBounders () {
     rightWall.body.immovable = true;
 
     ceiling = game.add.image(0, 0, 'ceiling');
+    leftbutton = game.add.button(300, 350, 'brl', leftbuttonDown, this);
+    rightbutton = game.add.button(50, 350, 'brl', rightbuttonDown, this);
+    startbutton = game.add.button(100, 50, 'brl', startbuttonDown, this);
+
+    leftbutton.onInputDown.add(leftbuttonDown, this);
+    rightbutton.onInputDown.add(rightbuttonDown, this);
+    leftbutton.onInputUp.add(leftbuttonUp, this);
+    rightbutton.onInputUp.add(rightbuttonUp, this);
 }
+function leftbuttonDown(){
+    buttondir = 1;
+}
+
+function leftbuttonUp(){
+    console.log("0");
+    buttondir = 0;
+}
+
+function rightbuttonDown(){
+    buttondir = -1;
+}
+
+function rightbuttonUp(){
+    buttondir = 0;
+}
+
+function startbuttonDown(){
+    isStartbutton = 1;
+}
+
 
 var lastTime = 0;
 function createPlatforms () {
@@ -150,9 +187,9 @@ function createTextsBoard () {
 }
 
 function updatePlayer () {
-    if(keyboard.left.isDown) {
+    if(keyboard.left.isDown || buttondir == -1) {
         player.body.velocity.x = -250;
-    } else if(keyboard.right.isDown) {
+    } else if(keyboard.right.isDown || buttondir == 1) {
         player.body.velocity.x = 250;
     } else {
         player.body.velocity.x = 0;
@@ -290,6 +327,7 @@ function gameOver () {
 function restart () {
     text3.visible = false;
     distance = 0;
+    startbutton = 0;
     createPlayer();
     status = 'running';
 }
